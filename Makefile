@@ -15,3 +15,6 @@ clean:
 
 dev:
 	docker-compose up
+
+frontend-build:
+	cd nomad-frontend && npm install && npm run build
