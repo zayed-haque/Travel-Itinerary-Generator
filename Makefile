@@ -17,4 +17,4 @@ dev:
 	docker-compose up
 
 frontend-build:
-	cd nomad-frontend && npm install && npm run build
+	cd nomad-frontend && npm run build
