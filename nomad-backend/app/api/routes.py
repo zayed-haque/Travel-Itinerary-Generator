@@ -13,12 +13,14 @@ from app.models.schemas import (
 )
 import logging
 
+# Intialize the router and logger
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
 @router.post("/chat", response_model=ChatResponse)
 async def chat_search(request: ChatRequest, service: ChatSearchService = Depends()):
+    """Endpoint for chat search"""
     logger.info(f"Received query: {request.query}")
     response = await service.process_query(request.query, request.token)
     return response
@@ -28,6 +30,7 @@ async def chat_search(request: ChatRequest, service: ChatSearchService = Depends
 async def process_trip_details(
     request: TripDetailsRequest, service: TripDetailsService = Depends()
 ):
+    """Endpoint for processing trip details"""
     logger.info(f"Received trip details input: {request.query}")
     try:
         details = await service.process_trip_details(request.query)
@@ -45,6 +48,7 @@ async def process_trip_details(
 async def get_flight_prices(
     request: FlightPriceRequest, service: FlightPriceService = Depends()
 ):
+    """Endpoint for getting flight prices"""
     try:
         flights = await service.get_flight_prices(
             request.origin, request.destination, request.date
@@ -63,6 +67,7 @@ async def get_flight_prices(
 async def get_price_trend(
     request: FlightPriceRequest, service: FlightPriceService = Depends()
 ):
+    """Endpoint for getting price trend"""
     try:
         trend = await service.get_price_trend(
             request.origin, request.destination, request.date
@@ -83,6 +88,7 @@ async def download_trip_details(
     trip_service: TripDetailsService = Depends(),
     pdf_service: PDFGenerator = Depends(),
 ):
+    """Endpoint for downloading trip details as A PDF"""
     try:
         trip_details = await trip_service.process_trip_details(request.query)
         if "error" in trip_details:

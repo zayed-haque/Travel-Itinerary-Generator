@@ -8,6 +8,10 @@ logger = logging.getLogger(__name__)
 
 
 class ChatSearchService:
+    """Service class for chat search functionality using Generative AI model.
+    The service processes user queries and generates responses using the Generative AI model.
+    """
+
     def __init__(self):
         genai.configure(api_key=settings.GEMINI_API_KEY)
         self.model = genai.GenerativeModel("gemini-1.5-pro")

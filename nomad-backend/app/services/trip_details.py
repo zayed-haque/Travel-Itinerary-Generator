@@ -26,12 +26,18 @@ class TripDetailsService:
         try:
             itinerary = await self._generate_itinerary(user_input)
             parsed_itinerary = self._parse_itinerary(itinerary)
-            image_search_terms = await self._generate_image_search_terms(parsed_itinerary)
-            enriched_itinerary = await self._enrich_with_images(parsed_itinerary, image_search_terms)
+            image_search_terms = await self._generate_image_search_terms(
+                parsed_itinerary
+            )
+            enriched_itinerary = await self._enrich_with_images(
+                parsed_itinerary, image_search_terms
+            )
             return {"itinerary": enriched_itinerary}
         except Exception as e:
             logger.error(f"Error processing trip details: {str(e)}", exc_info=True)
-            return {"error": f"An error occurred while processing your trip details: {str(e)}. Please try again."}
+            return {
+                "error": f"An error occurred while processing your trip details: {str(e)}. Please try again."
+            }
 
     async def _generate_itinerary(self, user_input: Dict[str, Any]) -> str:
         """
@@ -41,18 +47,20 @@ class TripDetailsService:
         input_data = {k.lower(): v for k, v in user_input.items()}
 
         prompt = ITINERARY_PROMPT.format(
-            dates=input_data.get('dates', 'Not specified'),
-            location=input_data.get('location', 'Not specified'),
-            budget=input_data.get('budget', 'Not specified'),
-            travelers=input_data.get('travelers', 'Not specified'),
-            activities=input_data.get('activities', 'Not specified'),
-            meal_preferences=input_data.get('meal preferences', 'Not specified')
+            dates=input_data.get("dates", "Not specified"),
+            location=input_data.get("location", "Not specified"),
+            budget=input_data.get("budget", "Not specified"),
+            travelers=input_data.get("travelers", "Not specified"),
+            activities=input_data.get("activities", "Not specified"),
+            meal_preferences=input_data.get("meal preferences", "Not specified"),
         )
 
         try:
             response = self.model.generate_content(prompt)
             generated_itinerary = response.text.strip()
-            logger.info(f"Generated itinerary (first 100 chars): {generated_itinerary[:100]}")
+            logger.info(
+                f"Generated itinerary (first 100 chars): {generated_itinerary[:100]}"
+            )
             return generated_itinerary
         except Exception as e:
             logger.error(f"Error generating itinerary: {str(e)}")
@@ -97,11 +105,17 @@ class TripDetailsService:
         json_str = re.sub(r",\s*}", "}", json_str)
         return json_str
 
-    async def _generate_image_search_terms(self, itinerary: Dict[str, Any]) -> List[str]:
+    async def _generate_image_search_terms(
+        self, itinerary: Dict[str, Any]
+    ) -> List[str]:
         """
         Generate image search terms based on the itinerary summary.
         """
-        prompt = IMAGE_SEARCH_PROMPT.format(summary=itinerary.get('summary', 'A trip focusing on sightseeing and cultural experiences.'))
+        prompt = IMAGE_SEARCH_PROMPT.format(
+            summary=itinerary.get(
+                "summary", "A trip focusing on sightseeing and cultural experiences."
+            )
+        )
 
         try:
             response = self.model.generate_content(prompt)
@@ -124,22 +138,30 @@ class TripDetailsService:
             return json.loads(json_str)
         raise ValueError("No valid JSON array found in the response")
 
-    async def _enrich_with_images(self, itinerary: Dict[str, Any], image_search_terms: List[str]) -> Dict[str, Any]:
+    async def _enrich_with_images(
+        self, itinerary: Dict[str, Any], image_search_terms: List[str]
+    ) -> Dict[str, Any]:
         """
         Enrich the itinerary with images based on the search terms.
         """
         if not image_search_terms:
-            logger.warning("No image search terms available. Skipping image enrichment.")
+            logger.warning(
+                "No image search terms available. Skipping image enrichment."
+            )
             return itinerary
 
         async with ClientSession() as session:
-            attraction_images = await self._fetch_multiple_images(session, image_search_terms, "attraction")
+            attraction_images = await self._fetch_multiple_images(
+                session, image_search_terms, "attraction"
+            )
             logger.info(f"Fetched {len(attraction_images)} images for attractions")
             itinerary["images"] = attraction_images
 
         return itinerary
 
-    async def _fetch_multiple_images(self, session: ClientSession, queries: List[str], image_type: str) -> List[Dict[str, str]]:
+    async def _fetch_multiple_images(
+        self, session: ClientSession, queries: List[str], image_type: str
+    ) -> List[Dict[str, str]]:
         """
         Fetch multiple images based on the given queries.
         """
@@ -154,7 +176,9 @@ class TripDetailsService:
                 logger.warning(f"No image found for '{query}'")
         return images
 
-    async def _fetch_image(self, session: ClientSession, query: str, image_type: str) -> Dict[str, str]:
+    async def _fetch_image(
+        self, session: ClientSession, query: str, image_type: str
+    ) -> Dict[str, str]:
         """
         Fetch a single image from Unsplash API based on the query.
         """
@@ -176,7 +200,9 @@ class TripDetailsService:
                             "attribution": f"Photo by {image['user']['name']} on Unsplash",
                         }
                 else:
-                    logger.warning(f"Unsplash API returned status code {response.status} for query '{query}'")
+                    logger.warning(
+                        f"Unsplash API returned status code {response.status} for query '{query}'"
+                    )
         except Exception as e:
             logger.error(f"Error fetching image for {image_type} '{query}': {str(e)}")
         return {}

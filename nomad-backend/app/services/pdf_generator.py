@@ -16,6 +16,8 @@ import requests
 
 
 class PDFGenerator:
+    """Class for generating PDFs"""
+
     def __init__(self):
         self.buffer = BytesIO()
         self.styles = getSampleStyleSheet()

@@ -8,6 +8,8 @@ logger = logging.getLogger(__name__)
 
 
 class FlightPriceService:
+    """Service class for fetching flight prices and trends using the Amadeus Flight Offers API."""
+
     def __init__(self):
         self.api_key = settings.FLIGHT_API_KEY
         self.api_url = settings.FLIGHT_API_URL
@@ -19,7 +21,7 @@ class FlightPriceService:
             "departureDate": date,
             "adults": 1,
             "nonStop": False,
-            "max": 5,  # Limit to 5 results for this example
+            "max": 5,  # Limit to 5 results
         }
 
         headers = {"Authorization": f"Bearer {self.api_key}"}
@@ -42,6 +44,7 @@ class FlightPriceService:
             )
 
     def _parse_flight_data(self, data):
+        """Parse the flight data from the API response"""
         flights = []
         for offer in data.get("data", []):
             flight = {

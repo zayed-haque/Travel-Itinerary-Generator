@@ -18,3 +18,6 @@ dev:
 
 frontend-build:
 	cd nomad-frontend && npm run build
+
+frontend-dev:
+	cd nomad-frontend && npm install && npm run start
